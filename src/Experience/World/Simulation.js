@@ -10,6 +10,8 @@ export default class Simulation {
         this.scene = this.experience.scene
         this.debug = this.experience.debug
         this.simParticipants = []
+        this.params = {}
+        this.params.timeStep = 0
 
         // Debug
         if(this.debug.active)
@@ -24,13 +26,13 @@ export default class Simulation {
         )
 
         this.sun = new THREE.Mesh(
-            new THREE.SphereGeometry(2, 10, 10),
+            new THREE.SphereGeometry(0.2, 10, 10),
             new THREE.MeshBasicMaterial({wireframe: true})
         )
         
         // Modifying positions as needed
         this.earth.position.x = 16
-        this.earth.position.z = 1
+        this.earth.position.z = 5
         this.sun.position.x = -16
         this.sun.position.z = -1
         
@@ -43,7 +45,7 @@ export default class Simulation {
         this.collectSimParticipants()
         this.assignPhysicsProps()
         this.runDebug()
-        this.calculateForces()
+        // this.calculateForces()
 
         /* 
             Testing
@@ -73,25 +75,33 @@ export default class Simulation {
             this.simParticipants[i]['mass'] = 10
             this.simParticipants[i]['velocity'] = {x: 0, y: 0, z: 0}
             this.simParticipants[i]['acceleration'] = {x: 0, y: 0, z: 0}
-            this.simParticipants[i]['netForce'] = {value: 0, angle: 0}
+            this.simParticipants[i]['netForce'] = {x: 0, y: 0, z: 0}
 
             // Scaling mass to approximate real celestial values  
             this.simParticipants[i].mass *= Math.pow(10, 12)
         }
-
-
     }
 
     calculateForces() {
-        let forces = []
         for(let i = 0; i < this.simParticipants.length; i++) {
+            let forces = []
             for(let j = 0; j < this.simParticipants.length; j++) {
-                forces.push(this.physicsUtils.getForce(this.simParticipants[i], this.simParticipants[j]))
+
+                if(i !== j)
+                    forces.push(this.physicsUtils.getForce(this.simParticipants[i], this.simParticipants[j]))
+                else
+                    continue
             }
             
+            let netForce = {x: 0, y: 0, z: 0}
+            for(let z = 0; z < forces.length; z++) {
+                netForce.x += (forces[z].force*Math.cos(forces[z].angle)) 
+                netForce.z += (forces[z].force*Math.sin(forces[z].angle)) 
+            }
+            this.simParticipants[i].netForce = netForce
         }
 
-        console.log(this.earth.netForce);
+        // console.log(this.sun.netForce);
     }   
 
     runDebug() {
@@ -125,9 +135,48 @@ export default class Simulation {
                     .min(0)
                     .max(100)
                     .step(0.1)
+
+                this.debugFolder
+                    .add(this.params, 'timeStep')
+                    .name('timeStep')
+                    .min(1)
+                    .max(1000000)
+                    .step(10)
                 
             }
         }
+    }
 
+    updatePositions() {
+        for(let i = 0; i < this.simParticipants.length; i++) {
+            this.simParticipants[i].acceleration.x = 
+                this.simParticipants[i].netForce.x / this.simParticipants[i].mass
+
+            this.simParticipants[i].acceleration.y = 
+                this.simParticipants[i].netForce.y / this.simParticipants[i].mass
+
+            this.simParticipants[i].acceleration.z = 
+                this.simParticipants[i].netForce.z / this.simParticipants[i].mass
+
+            this.simParticipants[i].velocity.x += 
+                this.simParticipants[i].acceleration.x
+
+            this.simParticipants[i].velocity.y += 
+                this.simParticipants[i].acceleration.y
+
+            this.simParticipants[i].velocity.z += 
+                this.simParticipants[i].acceleration.z
+
+            this.simParticipants[i].position.x += 
+                (this.simParticipants[i].velocity.x / 60) * 1000000000
+
+            this.simParticipants[i].position.y += 
+                (this.simParticipants[i].velocity.y / 60) * 1000000000
+
+            this.simParticipants[i].position.z += 
+                (this.simParticipants[i].velocity.z / 60) * 1000000000
+
+            // console.log(this.sun.netForce);
+        }
     }
 }
