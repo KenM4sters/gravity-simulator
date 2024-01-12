@@ -61,11 +61,9 @@ export default class PhysicsUtils {
         let force = (6.674*Math.pow(10, -11) * ((objectA.mass * objectB.mass) / Math.pow(r, 2)))
 
         let forceVector = {force: force , angle: angle}
+
+        // console.log(forceVector);
         
         return forceVector
-    }
-
-    getAcceleration(object, force) {
-        return force / object.mass
     }
 }

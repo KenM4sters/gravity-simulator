@@ -24,7 +24,6 @@ export default class World
     }
 
     update() {
-        // this.simulation.cube.position.x += 0.1
         this.simulation.calculateForces()
         this.simulation.updatePositions()
     }

@@ -29,31 +29,43 @@ export default class Simulation {
             new THREE.SphereGeometry(0.2, 10, 10),
             new THREE.MeshBasicMaterial({wireframe: true})
         )
+
+        this.test = new THREE.Mesh(
+            new THREE.SphereGeometry(0.2, 10, 10),
+            new THREE.MeshBasicMaterial({wireframe: true})
+        )
         
         // Modifying positions as needed
         this.earth.position.x = 16
         this.earth.position.z = 5
         this.sun.position.x = -16
         this.sun.position.z = -1
+        this.test.position.x = -5
+        this.test.position.z = 9
         
         // Add to the scene
         this.scene.add(this.earth)
         this.scene.add(this.sun)
+        // this.scene.add(this.test)
 
         
         // Traverses the scene for meshes and adds them to an array
         this.collectSimParticipants()
         this.assignPhysicsProps()
         this.runDebug()
-        // this.calculateForces()
+        this.calculateForces() 
+
+        // Adding an initial velocity to alllow orbits
 
         /* 
             Testing
         */
-        
-        
-        // console.log(this.physicsUtils.getNormalVector(this.sun, this.earth));
-        // console.log(this.physicsUtils.getForce(this.sun, this.earth));
+       this.earth.velocity.x = Math.pow(10, -9)*Math.cos(1.8)
+       this.earth.velocity.z = -Math.pow(10, -9)*Math.sin(1.8)
+       this.sun.velocity.x = Math.pow(10, -9)*Math.cos(5)
+       this.sun.velocity.z = -Math.pow(10, -9)*Math.sin(5)
+
+
 
     }
 
@@ -72,7 +84,7 @@ export default class Simulation {
 
     assignPhysicsProps() {
         for(let i = 0; i < this.simParticipants.length; i++) {
-            this.simParticipants[i]['mass'] = 10
+            this.simParticipants[i]['mass'] = 100
             this.simParticipants[i]['velocity'] = {x: 0, y: 0, z: 0}
             this.simParticipants[i]['acceleration'] = {x: 0, y: 0, z: 0}
             this.simParticipants[i]['netForce'] = {x: 0, y: 0, z: 0}
@@ -83,25 +95,30 @@ export default class Simulation {
     }
 
     calculateForces() {
+        let forces = []
         for(let i = 0; i < this.simParticipants.length; i++) {
-            let forces = []
+            forces = []
             for(let j = 0; j < this.simParticipants.length; j++) {
 
                 if(i !== j)
                     forces.push(this.physicsUtils.getForce(this.simParticipants[i], this.simParticipants[j]))
                 else
                     continue
+
             }
             
             let netForce = {x: 0, y: 0, z: 0}
             for(let z = 0; z < forces.length; z++) {
                 netForce.x += (forces[z].force*Math.cos(forces[z].angle)) 
-                netForce.z += (forces[z].force*Math.sin(forces[z].angle)) 
+                netForce.z += (-forces[z].force*Math.sin(forces[z].angle)) 
+                // console.log(forces);
             }
             this.simParticipants[i].netForce = netForce
+
         }
 
-        // console.log(this.sun.netForce);
+        // console.log('earth', this.earth.netForce)
+        // console.log('sun', this.sun.netForce)
     }   
 
     runDebug() {
@@ -176,7 +193,7 @@ export default class Simulation {
             this.simParticipants[i].position.z += 
                 (this.simParticipants[i].velocity.z / 60) * 1000000000
 
-            // console.log(this.sun.netForce);
+            // console.log(this.earth.velocity);
         }
     }
 }
