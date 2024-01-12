@@ -18,40 +18,44 @@ export default class Simulation {
         }
 
         // Creating the Meshes
-        this.cube = new THREE.Mesh(
-            new THREE.BoxGeometry(1, 1, 1),
+        this.earth = new THREE.Mesh(
+            new THREE.SphereGeometry(0.2, 10, 10),
             new THREE.MeshBasicMaterial({wireframe: true})
         )
 
-        this.sphere = new THREE.Mesh(
+        this.sun = new THREE.Mesh(
             new THREE.SphereGeometry(2, 10, 10),
             new THREE.MeshBasicMaterial({wireframe: true})
         )
         
         // Modifying positions as needed
-        this.cube.position.x = 3
-        this.cube.position.z = 1
+        this.earth.position.x = 16
+        this.earth.position.z = 1
+        this.sun.position.x = -16
+        this.sun.position.z = -1
         
         // Add to the scene
-        this.scene.add(this.cube)
-        this.scene.add(this.sphere)
+        this.scene.add(this.earth)
+        this.scene.add(this.sun)
 
-        /* 
-            Testing
-        */
-
-        console.log(this.physicsUtils.getNormalVector(this.sphere, this.cube));
-            
+        
         // Traverses the scene for meshes and adds them to an array
         this.collectSimParticipants()
         this.assignPhysicsProps()
         this.runDebug()
         this.calculateForces()
 
+        /* 
+            Testing
+        */
+        
+        
+        // console.log(this.physicsUtils.getNormalVector(this.sun, this.earth));
+        // console.log(this.physicsUtils.getForce(this.sun, this.earth));
+
     }
 
     collectSimParticipants() {
-
         this.scene.traverse((child) => {
             if(child instanceof THREE.Mesh) {
                 child.name = `${child.uuid}`
@@ -59,9 +63,9 @@ export default class Simulation {
             }
         })
 
-        for(let i = 0; i < this.simParticipants.length; i++) {
-            console.log(this.simParticipants[i]);
-        }
+        // for(let i = 0; i < this.simParticipants.length; i++) {
+            // console.log(this.simParticipants[i]);
+        // }
     }
 
     assignPhysicsProps() {
@@ -69,17 +73,25 @@ export default class Simulation {
             this.simParticipants[i]['mass'] = 10
             this.simParticipants[i]['velocity'] = {x: 0, y: 0, z: 0}
             this.simParticipants[i]['acceleration'] = {x: 0, y: 0, z: 0}
-            this.simParticipants[i]['netForce'] = new THREE.Vector3()
+            this.simParticipants[i]['netForce'] = {value: 0, angle: 0}
+
+            // Scaling mass to approximate real celestial values  
+            this.simParticipants[i].mass *= Math.pow(10, 12)
         }
+
+
     }
 
     calculateForces() {
+        let forces = []
         for(let i = 0; i < this.simParticipants.length; i++) {
             for(let j = 0; j < this.simParticipants.length; j++) {
-            
-                
+                forces.push(this.physicsUtils.getForce(this.simParticipants[i], this.simParticipants[j]))
             }
+            
         }
+
+        console.log(this.earth.netForce);
     }   
 
     runDebug() {
@@ -116,5 +128,6 @@ export default class Simulation {
                 
             }
         }
+
     }
 }

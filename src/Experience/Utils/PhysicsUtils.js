@@ -17,8 +17,7 @@ export default class PhysicsUtils {
     getAngleBetween(referenceObj, targetObj) {
         let deltaX = targetObj.position.x - referenceObj.position.x
         let deltaZ = targetObj.position.z - referenceObj.position.z
-        console.log(deltaX)
-        console.log(deltaZ)
+
         
         return targetObj.position.z > referenceObj.position.z ? 
             (Math.PI * 2) - Math.abs(Math.atan2(deltaZ, deltaX)) 
@@ -34,8 +33,8 @@ export default class PhysicsUtils {
         }
         let magnitude = this.getDistanceBetween(referenceObj, targetObj)
         let angle = this.getAngleBetween(referenceObj, targetObj)
-        console.log(angle);
-        console.log(this.radsToDegs(angle));
+        // console.log(angle);
+        // console.log(this.radsToDegs(angle));
 
         normalVec.x = -(magnitude*Math.sin(angle))
         normalVec.z = magnitude*Math.cos(angle)
@@ -54,6 +53,10 @@ export default class PhysicsUtils {
     getForce(objectA, objectB) {
 
         let r = this.getDistanceBetween(objectA, objectB)
+
+        //scaling distance to approximate real celestial values
+        r *= Math.pow(10, 6)
+
         let angle = this.getAngleBetween(objectA, objectB)
         let force = (6.674*Math.pow(10, -11) * ((objectA.mass * objectB.mass) / Math.pow(r, 2)))
 
