@@ -22,17 +22,17 @@ export default class Simulation {
         // Creating the Meshes
         this.earth = new THREE.Mesh(
             new THREE.SphereGeometry(0.2, 10, 10),
-            new THREE.MeshBasicMaterial({wireframe: true})
+            new THREE.MeshBasicMaterial({wireframe: true, color: 'blue'})
         )
 
         this.sun = new THREE.Mesh(
             new THREE.SphereGeometry(0.2, 10, 10),
-            new THREE.MeshBasicMaterial({wireframe: true})
+            new THREE.MeshBasicMaterial({wireframe: true, color: 'blue'})
         )
 
         this.test = new THREE.Mesh(
-            new THREE.SphereGeometry(0.2, 10, 10),
-            new THREE.MeshBasicMaterial({wireframe: true})
+            new THREE.SphereGeometry(1, 10, 10),
+            new THREE.MeshBasicMaterial({wireframe: false, color: 'red'})
         )
         
         // Modifying positions as needed
@@ -40,18 +40,17 @@ export default class Simulation {
         this.earth.position.z = 5
         this.sun.position.x = -16
         this.sun.position.z = -1
-        this.test.position.x = -5
-        this.test.position.z = 9
         
         // Add to the scene
         this.scene.add(this.earth)
         this.scene.add(this.sun)
-        // this.scene.add(this.test)
+        this.scene.add(this.test)
 
         
         // Traverses the scene for meshes and adds them to an array
         this.collectSimParticipants()
         this.assignPhysicsProps()
+        this.test.mass *= 11
         this.runDebug()
         this.calculateForces() 
 
@@ -60,10 +59,11 @@ export default class Simulation {
         /* 
             Testing
         */
-       this.earth.velocity.x = Math.pow(10, -9)*Math.cos(1.8)
-       this.earth.velocity.z = -Math.pow(10, -9)*Math.sin(1.8)
-       this.sun.velocity.x = Math.pow(10, -9)*Math.cos(5)
-       this.sun.velocity.z = -Math.pow(10, -9)*Math.sin(5)
+       this.earth.velocity.x = Math.pow(10, -8)*Math.cos(1.8)
+       this.earth.velocity.z = -Math.pow(10, -8)*Math.sin(1.8)
+       this.sun.velocity.x = Math.pow(10, -8)*Math.cos(5)
+       this.sun.velocity.z = -Math.pow(10, -8)*Math.sin(5)
+
 
 
 
