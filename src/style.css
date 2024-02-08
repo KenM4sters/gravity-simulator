@@ -35,7 +35,7 @@ body
     border-radius: 5px;
     border: 1px solid rgba(93, 0, 255, 0.1);
     box-shadow: rgba(106, 0, 255, 0.15) 1.95px 1.95px 2.6px;
-    font-size: 0.9rem;
+    font-size: calc(0.25rem + 1.2vh);
 }
 
 .info-wrapper a {
